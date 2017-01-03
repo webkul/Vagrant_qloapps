@@ -13,8 +13,8 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "your_base_box"
-  config.ssh.username = "vagrant"
-  config.ssh.password = "vagrant"
+  config.ssh.username = "vagrant_user"
+  config.ssh.password = "vagrant_password"
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
