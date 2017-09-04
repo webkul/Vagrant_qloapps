@@ -76,7 +76,7 @@ DATABASE ROOT USER'S PASSWORD: $database_root_password
 DATABASE NAME: $database_name
 DATABASE USER: $database_user
 DATABASE USER'S PASSWORD: $database_user_password
-_______________________________________________________________________\\"
+_______________________________________________________________________\\${reset}"
 sleep 2
 
 ##update server
@@ -163,12 +163,12 @@ mysql -h $database_host -u $database_root_user -p$database_root_password -e "gra
 
 ##download Qloapps
 
-cd /var/www/ && wget https://github.com/webkul/hotelcommerce/archive/v1.1.0.zip
+cd /opt && wget https://github.com/webkul/hotelcommerce/archive/v1.1.0.zip
 
 ## make a folder and unzip magento files
 
 mkdir -p $path_to_root_directory_folder
-cd $path_to_root_directory_folder/ && unzip /var/www/v1.1.0.zip
+cd $path_to_root_directory_folder/ && unzip /opt/v1.1.0.zip
 
 ##ownership and permissions
 
