@@ -242,6 +242,7 @@ chmod 640 /var/log/check.log
 echo "user password is: $user_password " > /var/log/check.log
 echo "Database user $database_user password is: $database_user_password " >>  /var/log/check.log
 echo "Database root user password is: $database_root_password" >> /var/log/check.log
+echo "Admin URL will be generated after qloapps installation. Please check admin frontname in server root directory" >> /var/log/check.log
 echo "${red}################################ IMPORTANT !!! ##############################${reset}"
 echo "${yellow}#      REMOVE "/var/log/check.log" file after checking password          #${reset}"
 echo "${red}#############################################################################${reset}"
