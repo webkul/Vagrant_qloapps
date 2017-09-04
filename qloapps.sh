@@ -22,7 +22,7 @@ user=                                 ## mention name of the user. This will be 
 
 user_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`   ## randomly generated user's password
 
-path_to_root_directory_folder=        ## mention path of magento installation directory. Avoid using /var/www . (ex: /home/test)
+path_to_root_directory_folder=        ## mention path of qloapps installation directory. Avoid using /var/www . (ex: /home/test)
 
 ######################################################################################################################
 # For database on remote host, mention the its endpoint or IP address in the "database_host" variable.               #
