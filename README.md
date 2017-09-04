@@ -35,5 +35,3 @@ After finishing the script,
 > To stop the instance, run *exit* command in vagrant enviornment and then run command: *vagrant halt*
 
 After successfull installation, hit the url http://your-server-name and begin with the installation.
-
-![Alt text](https://github.com/alankrit29/Shell-Provisining-in-Vagrant-for-Qloapps/blob/master/Screenshot%20from%202017-01-03%2011:47:53.png?raw=true)
