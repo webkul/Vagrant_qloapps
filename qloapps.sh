@@ -22,7 +22,7 @@ user=                                 ## mention name of the user. This will be 
 
 user_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`   ## randomly generated user's password
 
-path_to_root_directory_folder=        ## mention path of qloapps installation directory. Avoid using /var/www . (ex: /home/test)
+path_to_root_directory_folder=        ## mention path of qloapps installation directory. (ex: /home/test)
 
 ######################################################################################################################
 # For database on remote host, mention the its endpoint or IP address in the "database_host" variable.               #
@@ -77,7 +77,7 @@ DATABASE NAME: $database_name
 DATABASE USER: $database_user
 DATABASE USER'S PASSWORD: $database_user_password
 _______________________________________________________________________\\${reset}"
-sleep 2
+sleep 4
 
 ##update server
 
@@ -181,6 +181,7 @@ chown -R $user: $path_to_root_directory_folder
 
 a2enmod rewrite
 a2enmod headers
+a2enmod php5
 
 sed -i "s/www-data/$user/g" /etc/apache2/envvars
 echo " " > /etc/apache2/sites-enabled/000-default.conf
