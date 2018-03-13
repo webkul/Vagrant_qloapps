@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ########################################################
-# VAGRANT PROVISIONING SCRIPT FOR QLOAPPS-v-1.1.0      #
+# VAGRANT PROVISIONING SCRIPT FOR QLOAPPS              #
 # AUTHOR: Alankrit Srivastava                          #
 # Webkul Software Pvt. Limited.                        #
 ########################################################
@@ -18,30 +18,26 @@
 
 ##set variables
 
-user=                                 ## mention name of the user. This will be your apache2 user. Also will be your ssh and sftp user.
+user=                                        ## mention name of the user. This will be your apache2 user. Also will be your ssh and sftp user.
 
 user_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`   ## randomly generated user's password
 
-path_to_root_directory_folder=        ## mention path of qloapps installation directory. (ex: /home/test)
+path_to_root_directory_folder=               ## mention path of qloapps installation directory. (ex: /home/test)
 
 ######################################################################################################################
 # For database on remote host, mention the its endpoint or IP address in the "database_host" variable.               #
 # If you wish to keep database on local environment, mention "localhost" or "127.0.0.1" in "database_host" variable  #
 ######################################################################################################################
 
-database_root_user=                   ## mention database root user
+database_root_user=                          ## mention database root user
 
-database_root_password=               ## mention database root user's password
+database_root_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`   ## randomly generated database user password
 
-database_user=                        ## mention database user
+database_name=                               ## mention database name
 
-database_name=                        ## mention database name
+database_host=                               ## mention database remote host.
 
-database_user_password=               ## mention database user's password
-
-database_host=                        ## mention database remote host.
-
-domain_name=                          ## mention the domain name
+domain_name=                                 ## mention the domain name
 
 # BLOCK 2 #
 #################################################################################
@@ -74,8 +70,6 @@ DATABASE HOST: $database_host
 DATABASE ROOT USER: $database_root_user
 DATABASE ROOT USER'S PASSWORD: $database_root_password
 DATABASE NAME: $database_name
-DATABASE USER: $database_user
-DATABASE USER'S PASSWORD: $database_user_password
 _______________________________________________________________________\\${reset}"
 sleep 4
 
@@ -136,12 +130,11 @@ fi
 # > openssh-server installation                            #
 ############################################################
 
-##install necessory packages
+##install git
 
-apt-get install -y unzip
-apt-get install -y wget
+apt-get install -y git
 
-##apache2 user creation
+##user creation
 
 useradd -m -s /bin/bash $user
 echo -e "$user_password\n$user_password\n" | passwd $user
@@ -156,19 +149,16 @@ apt-get install -y php5 php5-curl php5-gd php5-mcrypt php5-mysql libapache2-mod-
 php5enmod mcrypt
 sed -i -e"s/^memory_limit\s*=\s*128M/memory_limit = 512M/" /etc/php5/apache2/php.ini
 
-##create database and its user
+##create database
 
 mysql -h $database_host -u $database_root_user -p$database_root_password -e "create database $database_name;" 
-mysql -h $database_host -u $database_root_user -p$database_root_password -e "grant all on $database_name.* to '$database_user'@'%' identified by '$database_user_password';"
+mysql -h $database_host -u $database_root_user -p$database_root_password -e "grant all on $database_name.* to '$database_root_user'@'%' identified by '$database_root_password';"
 
-##download Qloapps
+##download Qloapps latest version
 
-cd /opt && wget https://github.com/webkul/hotelcommerce/archive/v1.1.0.zip
-
-## make a folder and unzip magento files
-
+cd /opt && git clone https://github.com/webkul/hotelcommerce.git
 mkdir -p $path_to_root_directory_folder
-cd $path_to_root_directory_folder/ && unzip /opt/v1.1.0.zip
+mv /opt/hotelcommerce $path_to_root_directory_folder/
 
 ##ownership and permissions
 
@@ -189,8 +179,8 @@ echo " " > /etc/apache2/sites-enabled/000-default.conf
 cat <<EOF >> /etc/apache2/sites-enabled/000-default.conf
 <VirtualHost *:80> 
 ServerName $domain_name
-DocumentRoot $path_to_root_directory_folder/hotelcommerce-1.1.0
-<Directory  $path_to_root_directory_folder/hotelcommerce-1.1.0> 
+DocumentRoot $path_to_root_directory_folder/hotelcommerce
+<Directory  $path_to_root_directory_folder/hotelcommerce> 
 Options FollowSymLinks 
 Require all granted  
 AllowOverride all 
@@ -218,7 +208,6 @@ echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-se
 echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections
 echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
 apt-get -y install phpmyadmin
-sed -i "/$database_host/d" /etc/phpmyadmin/config.inc.php
 echo "\$cfg['Servers'][\$i]['host'] = '$database_host';" >> /etc/phpmyadmin/config.inc.php
 
 
@@ -241,11 +230,11 @@ chmod 640 /var/log/check.log
 ## check password ##
 
 echo "user password is: $user_password " > /var/log/check.log
-echo "Database user $database_user password is: $database_user_password " >>  /var/log/check.log
-echo "Database root user password is: $database_root_password" >> /var/log/check.log
+echo "Database user $database_root_user password is: $database_root_password " >>  /var/log/check.log
 echo "Admin URL will be generated after qloapps installation. Please check admin frontname in server root directory" >> /var/log/check.log
 echo "${red}################################ IMPORTANT !!! ##############################${reset}"
 echo "${yellow}#      REMOVE "/var/log/check.log" file after checking password          #${reset}"
 echo "${red}#############################################################################${reset}"
 
-##############################################################################################################################################################################################
+echo "${green}Script Execution has been completed. If you encounter any errors, destroy this Vagrant server and re-build the Vagrant server${reset}"
+
