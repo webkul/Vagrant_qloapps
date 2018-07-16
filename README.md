@@ -26,7 +26,7 @@ We are here using shell provisioner. The Vagrant Shell provisioner allows you to
 Enable shell provisioning by defining function in Vagrantfile. A qloapps.sh bash script is placed parallel to the Vagrantfile. Configure your Vagrantfile by mentioning box name, IP address, vagrant user and vagrant password and add 
 *config.vm.provision "shell", path: "qloapps.sh"* as shown in Vagrantfile.
 
-Now open qloapps.sh file and set the #### domain name, database host and database name #### in their respective variables. Take a note that *mysql root password* will be randomly generated here which you can check in a log file located at */var/log/check.log* after shell provisioning is completed. *Don't forget to remove /var/log/check.log file after noting down mysql root password.*
+Now open qloapps.sh file and set the *domain name, database host and database name* in their respective variables. Take a note that *mysql root password* will be randomly generated here which you can check in a log file located at */var/log/check.log* after shell provisioning is completed. *Don't forget to remove /var/log/check.log file after noting down mysql root password.*
 
 In our architecture, we are using:
 
