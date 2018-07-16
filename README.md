@@ -14,19 +14,19 @@ We are here using shell provisioner. The Vagrant Shell provisioner allows you to
 
 ## PREREQUISITES
 
-> Latest available version of Virtualbox and Vagrant server should be installed on the server. Run "*vagrant -v*" to check vagrant version.
+> Latest available version of Virtualbox and Vagrant server should be installed on the server. Run *vagrant -v* to check vagrant version.
 
-> Dowload a Vagrant box for Ubuntu 14.04 and add its path in the Vagrantfile. A Vagrantfile sample is added in this project. Mention path to the Vagrant box in "*config.vm.box*". 
+> Dowload a Vagrant box for Ubuntu 14.04 and add its path in the Vagrantfile. A Vagrantfile sample is added in this project. Mention path to the Vagrant box in *config.vm.box*. 
 
 > Mention Vagrant username, password and IP address in their respective fields.
 
 
 ## VAGRANT SHELL PROVISIONING FOR QLOAPPS
 
-Enable shell provisioning by defining function in Vagrantfile. A qloapps.sh bash script is placed parallel to the Vagrantfile. Configure your Vagrantfile by mentioning box name, IP address, vagrant user and password, etc and place 
+Enable shell provisioning by defining function in Vagrantfile. A qloapps.sh bash script is placed parallel to the Vagrantfile. Configure your Vagrantfile by mentioning box name, IP address, vagrant user and vagrant password and add 
 *config.vm.provision "shell", path: "qloapps.sh"* as shown in Vagrantfile.
 
-Now open qloapps.sh file, set the domain name, database host and database name in their respective variables. Take a note that mysql root password will be randomly generated here which you can check in a log file located at /var/log/check.log. *Don't forget to remove /var/log/check.log file after noting down mysql root password to ensure no security vulnerability.*
+Now open qloapps.sh file and set the #### domain name, database host and database name #### in their respective variables. Take a note that *mysql root password* will be randomly generated here which you can check in a log file located at */var/log/check.log* after shell provisioning is completed. *Don't forget to remove /var/log/check.log file after noting down mysql root password.*
 
 In our architecture, we are using:
 
