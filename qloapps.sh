@@ -1,240 +1,153 @@
 #!/bin/bash
+# VAGRANT PROVISIONING SCRIPT FOR QLOAPPS
+# AUTHOR: Alankrit Srivastava
+# Webkul Software Pvt. Limited.
+# Operating System: Ubuntu 14.04
 
-########################################################
-# VAGRANT PROVISIONING SCRIPT FOR QLOAPPS              #
-# AUTHOR: Alankrit Srivastava                          #
-# Webkul Software Pvt. Limited.                        #
-########################################################
-
-# BLOCK 1 #
 ##########################################################################################################
 # This block contains variables to be defined by user. Before running this script, you must ensure that: #
-#> You have vagrant installed on your server.                                                            #
+#> You have vagrant installed on your server and this script is included in shell provisioning block in  #
+#  Vagrantfile.                                                                                          #
 #> If you want to setup database on remote host then remote host must be acccessible.                    #
 #> Your domain name must be present. If not, create a DNS host entry in your firewall.                   #
 # This script is strictly for one user per instance. Re-running scripts for another user will            #  
 # throw errors and destroy configuration for first user.                                                 #
 ##########################################################################################################
 
-##set variables
+domain_name=                                                                          ## mention the domain name
 
-user=                                        ## mention name of the user. This will be your apache2 user. Also will be your ssh and sftp user.
+database_host                                                                         ## mention database host.
 
-user_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`   ## randomly generated user's password
+database_name=                                                                        ## mention database name
 
-path_to_root_directory_folder=               ## mention path of qloapps installation directory. (ex: /home/test)
+mysql_root_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`  ## randomly generated database 
 
-######################################################################################################################
-# For database on remote host, mention the its endpoint or IP address in the "database_host" variable.               #
-# If you wish to keep database on local environment, mention "localhost" or "127.0.0.1" in "database_host" variable  #
-######################################################################################################################
 
-database_root_user=                          ## mention database root user
 
-database_root_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`   ## randomly generated database user password
-
-database_name=                               ## mention database name
-
-database_host=                               ## mention database remote host.
-
-domain_name=                                 ## mention the domain name
-
-# BLOCK 2 #
-#################################################################################
-# This block define variables for coloured output and perform several functions:#
-# > ubuntu version check                                                        #
-# > review user's inputs                                                        #
-# > install mysql-client (and mysql-server for local database setup)            #
-# > database host connectivity check                                            #
-# > database name availability check                                            #
-#################################################################################
-
-##predefined variables
-
-red=`tput setaf 1`
-green=`tput setaf 2`
-yellow=`tput setaf 3`
-reset=`tput sgr0`
-trap '{ echo "${red} PROCESS INTERRUPTED. EXITING !!! ${reset}." ; exit 1; }' INT
-ubuntu_version=`cat /etc/lsb-release | awk 'NR==2' | grep -Eo '[0-9\.]*'`
-
-##RE-CHECKING ALL THE USER'S INPUTS##
-
-echo " ${yellow}**CHECK YOUR INPUTS BEFORE PROCEEDING**
-_______________________________________________________________________\\
-DOMAIN NAME: $domain_name                                                          
-USER'S NAME: $user
-USER'S PASSWORD: $user_password
-SERVER DIRECTORY PATH: $path_to_root_directory_folder
-DATABASE HOST: $database_host
-DATABASE ROOT USER: $database_root_user
-DATABASE ROOT USER'S PASSWORD: $database_root_password
-DATABASE NAME: $database_name
-_______________________________________________________________________\\${reset}"
-sleep 4
-
-##update server
-
-apt-get update
-
-##install mysql-client for remote database
-
-apt-get -y install mysql-client-5.6
-
-##install mysql-server when database host is localhost
-
-if [ "$database_host" == "localhost" ] || [ "$database_host" == "127.0.0.1" ]; then
-export DEBIAN_FRONTEND="noninteractive"
-echo "mysql-server-5.6 mysql-server/root_password password $database_root_password" | debconf-set-selections
-echo "mysql-server-5.6 mysql-server/root_password_again password $database_root_password" | debconf-set-selections
-apt-get -y install mysql-server-5.6
-fi
-
-##database host connectivity check
-
-echo "${yellow}CHECKING DATABASE HOST CONNECTIVITY${reset}"
-datbase_connectivity_check=`mysqlshow --user=$database_root_user --password=$database_root_password --host=$database_host | grep -o mysql`
-if [ "$datbase_connectivity_check" != "mysql" ]; then
-echo "${red}DATBASE CONNECTIVITY FAILED !${reset}"
-exit
+database_Connectivity() {
+echo "CHECKING DATABASE HOST CONNECTIVITY"
+database_connectivity_check=`mysqlshow --user=root --password=$mysql_root_password --host=$database_host | grep -o mysql`
+if [ "$database_connectivity_check" != "mysql" ]; then
+echo "$DATABASE CONNECTIVITY FAILED !"
+exit 1
 else
-echo "${green}DATABASE CONNECTIVITY ESTABLISHED${reset}"
+echo "DATABASE CONNECTIVITY ESTABLISHED"
 fi
+}
 
-##database availability check
-
-############################################################################################################################################
-# In this script, your database will be created with a name being assigned to "$database_name" variable. And "database avaiability check"  #
-# checks if a database with same database name is present or not. For database already present, it terminates the script and asks you to   #
-# another database name. If you have already created an empty database, with its proper permissions to an user, before running this script #
-# then comment out "database availability check" block.                                                                                    #
-############################################################################################################################################
-
-echo "${yellow}CHECKING DATABASE AVAILABILITY${reset}"
-database_availability_check=`mysqlshow --user=$database_root_user --password=$database_root_password --host=$database_host | grep -o $database_name`
+database_Availability() {
+echo "CHECKING DATABASE AVAILABILITY"
+database_availability_check=`mysqlshow  --user=root --password=$mysql_root_password --host=$database_host | grep -o $database_name`
 if [ "$database_availability_check" == "$database_name" ]; then
-echo "${red}DATBASE $database_name ALREADY EXISTS. USE ANOTHER DATABASE NAME !${reset}"
-exit
+echo "DATBASE $database_name ALREADY EXISTS. USE ANOTHER DATABASE NAME !"
+exit 1
 else
-echo "${green}DATABASE $database_name IS FREE TO BE USED${reset}"
+echo "DATABASE $database_name IS FREE TO BE USED"
 fi
-# BLOCK 4 #
-############################################################
-# This block deals with:                                   #
-# > apache user creation (also ssh and sftp user)          #
-# > apache2 installation and configuration                 #
-# > php 5 installation with dependencies                   #
-# > database creation                                      #
-# > magento installation and configuration                 #
-# > phpmyadmin installation and configuration              #
-# > openssh-server installation                            #
-############################################################
+}
 
-##install git
 
-apt-get install -y git
+lamp_Installation() {
+##update server
+apt-get update \
+    && apt-get -y install apache2 \
+    && a2enmod rewrite \
+    && a2enmod headers \
+    && export LANG=en_US.UTF-8 \
+    && apt-get update \
+    && apt-get install -y software-properties-common \
+    && apt-get install -y language-pack-en-base \
+    && LC_ALL=en_US.UTF-8 add-apt-repository ppa:ondrej/php \
+    && apt-get update \
+    && apt-get -y install php5.6 php5.6-curl php5.6-intl php5.6-gd php5.6-dom php5.6-mcrypt php5.6-iconv php5.6-xsl php5.6-mbstring php5.6-ctype   php5.6-zip php5.6-pdo php5.6-xml php5.6-bz2 php5.6-calendar php5.6-exif php5.6-fileinfo php5.6-json php5.6-mysqli php5.6-mysql php5.6-posix php5.6-tokenizer php5.6-xmlwriter php5.6-xmlreader php5.6-phar php5.6-soap php5.6-mysql php5.6-fpm php5.6-bcmath libapache2-mod-php5.6 \
+    && sed -i -e"s/^memory_limit\s*=\s*128M/memory_limit = 512M/" /etc/php/5.6/apache2/php.ini \
+    && echo "date.timezone = Asia/Kolkata" >> /etc/php/5.6/apache2/php.ini \
+    && sed -i -e"s/^upload_max_filesize\s*=\s*2M/upload_max_filesize = 16M/" /etc/php/5.6/apache2/php.ini \
+    && sed -i -e"s/^max_execution_time\s*=\s*30/max_execution_time = 500/" /etc/php/5.6/apache2/php.ini
 
-##user creation
-
-useradd -m -s /bin/bash $user
-echo -e "$user_password\n$user_password\n" | passwd $user
-
-##install apache2
-
-apt-get -y install apache2
-
-#install php and its extensions
-
-apt-get install -y php5 php5-curl php5-gd php5-mcrypt php5-mysql libapache2-mod-php5
-php5enmod mcrypt
-sed -i -e"s/^memory_limit\s*=\s*128M/memory_limit = 512M/" /etc/php5/apache2/php.ini
+##install mysql-server=5.6
+export DEBIAN_FRONTEND="noninteractive"
+echo "mysql-server-5.6 mysql-server/root_password password $mysql_root_password" | debconf-set-selections
+echo "mysql-server-5.6 mysql-server/root_password_again password $mysql_root_password" | debconf-set-selections
+apt-get -y install mysql-server-5.6
+sleep 4
+database_Connectivity
+sleep 2
+database_Availability
 
 ##create database
-
-mysql -h $database_host -u $database_root_user -p$database_root_password -e "create database $database_name;" 
-mysql -h $database_host -u $database_root_user -p$database_root_password -e "grant all on $database_name.* to '$database_root_user'@'%' identified by '$database_root_password';"
-
-##download Qloapps latest version
-
-cd /opt && git clone https://github.com/webkul/hotelcommerce.git
-mkdir -p $path_to_root_directory_folder
-mv /opt/hotelcommerce $path_to_root_directory_folder/
-
-##ownership and permissions
-
-find $path_to_root_directory_folder -type f -exec chmod 644 {} \;
-find $path_to_root_directory_folder -type d -exec chmod 755 {} \;
-chown -R $user: $path_to_root_directory_folder
+mysql -h $database_host -u root -p$mysql_root_password -e "create database $database_name;" 
+mysql -h $database_host -u root -p$mysql_root_password -e "grant all on $database_name.* to 'root'@'%' identified by '$mysql_root_password';"
 
 
-##apache2 settings
-
+##apache2 configuration
 a2enmod rewrite
 a2enmod headers
-a2enmod php5
 
-sed -i "s/www-data/$user/g" /etc/apache2/envvars
-echo " " > /etc/apache2/sites-enabled/000-default.conf
-
-cat <<EOF >> /etc/apache2/sites-enabled/000-default.conf
+touch /etc/apache2/sites-enabled/qloapps.conf
+cat <<EOF >> /etc/apache2/sites-enabled/qloapps.conf
 <VirtualHost *:80> 
 ServerName $domain_name
-DocumentRoot $path_to_root_directory_folder/hotelcommerce
-<Directory  $path_to_root_directory_folder/hotelcommerce> 
+DocumentRoot /var/www/html/hotelcommerce
+<Directory  /var/www/html/hotelcommerce> 
 Options FollowSymLinks 
 Require all granted  
 AllowOverride all 
 </Directory> 
-
-Include /etc/phpmyadmin/apache.conf
-Alias /phpmyadmin /usr/share/phpmyadmin
-<Directory "/usr/share/phpmyadmin/">
-Order allow,deny
-Allow from all
-Require all granted
-</Directory>
 
 ErrorLog /var/log/apache2/error.log 
 CustomLog /var/log/apache2/access.log combined 
 
 </VirtualHost> 
 EOF
+}
 
-##phpmyadmin
+qloapps_Download() {
+apt-get install -y git
+cd /var/www/html/ && git clone https://github.com/webkul/hotelcommerce.git
 
-add-apt-repository -y ppa:vincent-c/ppa
-apt-get -y update
-echo "phpmyadmin phpmyadmin/internal/skip-preseed boolean true" | debconf-set-selections
-echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2" | debconf-set-selections
-echo "phpmyadmin phpmyadmin/dbconfig-install boolean false" | debconf-set-selections
-apt-get -y install phpmyadmin
-echo "\$cfg['Servers'][\$i]['host'] = '$database_host';" >> /etc/phpmyadmin/config.inc.php
-
-
-##install ssh server
-
-apt-get -y install openssh-server
-sed -i -e"s/^PasswordAuthentication\s*.*/PasswordAuthentication yes/g" /etc/ssh/sshd_config
-
+##ownership and permissions
+find /var/www/html/ -type f -exec chmod 644 {} \;
+find /var/www/html/ -type d -exec chmod 755 {} \;
+chown -R www-data:www-data /var/www/html/
 
 ##restart servers
-
 /etc/init.d/apache2 restart
+}
 
-##ceate a log file
 
-touch /var/log/check.log
-chown syslog:adm /var/log/check.log
-chmod 640 /var/log/check.log
+logging_Credentials() {
 
-## check password ##
+##Logging randomly generated Mysql password in a file
 
-echo "user password is: $user_password " > /var/log/check.log
-echo "Database user $database_root_user password is: $database_root_password " >>  /var/log/check.log
-echo "Admin URL will be generated after qloapps installation. Please check admin frontname in server root directory" >> /var/log/check.log
-echo "${red}################################ IMPORTANT !!! ##############################${reset}"
-echo "${yellow}#      REMOVE "/var/log/check.log" file after checking password          #${reset}"
-echo "${red}#############################################################################${reset}"
+echo "
+_______________________________________________________________________\\
 
-echo "${green}Script Execution has been completed. If you encounter any errors, destroy this Vagrant server and re-build the Vagrant server${reset}"
+DOMAIN NAME: $domain_name
+DATABASE HOST: $database_host
+DATABASE USER: root
+DATABASE ROOT USER'S PASSWORD: $mysql_root_password
+DATABASE NAME: $database_name
+________________________________________________________________________\\
 
+Admin URL will be generated after qloapps installation. Please check admin frontname in server root directory.
+REMOVE "/var/log/check.log" file after checking password.
+Script Execution has been completed. If you encounter any errors, destroy this Vagrant server and re-build the Vagrant server." \
+ > /var/log/check.log
+echo "
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         										              
+ Vagrant Shell Provisoning is completed. Hit your domain name to start Qloapps Installation Process.    
+ Also, please check /var/log/check.log file to retrieve your database credentials.                  
+												      
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+"
+}
+
+main() {
+lamp_Installation
+qloapps_Download
+logging_Credentials
+}
+
+main
