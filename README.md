@@ -60,3 +60,10 @@ After finishing the script,
 > To destroy your vagrant environment, run command: *vagrant destroy* 
 
 After successfull installation, hit the url http://your-server-name and begin with the installation.
+
+## GETTING SUPPORT
+
+If you have any issues, contact us at support@webkul.com or raise ticket at https://webkul.uvdesk.com/
+
+
+Thank you.
