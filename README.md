@@ -63,7 +63,7 @@ After successfull installation, hit the url http://your-server-name and begin wi
 
 ## GETTING SUPPORT
 
-If you have any issues, contact us at support@webkul.com or raise ticket at https://webkul.uvdesk.com/
+If you have any issues, contact us at support@qloapps.com or raise ticket at https://webkul.uvdesk.com/
 
 
 Thank you.
