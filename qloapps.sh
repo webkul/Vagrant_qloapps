@@ -2,7 +2,7 @@
 # VAGRANT PROVISIONING SCRIPT FOR QLOAPPS
 # AUTHOR: Alankrit Srivastava
 # Webkul Software Pvt. Limited.
-# Operating System: Ubuntu 14.04
+# Operating System: Ubuntu 18.04
 
 ##########################################################################################################
 # This block contains variables to be defined by user. Before running this script, you must ensure that: #
