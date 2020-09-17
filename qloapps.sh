@@ -14,11 +14,11 @@
 # throw errors and destroy configuration for first user.                                                 #
 ##########################################################################################################
 
-domain_name = ""                                                                          ## mention the domain name
+domain_name=                                                                          ## mention the domain name
 
-database_host = ""                                                                         ## mention database host.
+database_host=""                                                                         ## mention database host.
 
-database_name = ""                                                                        ## mention database name
+database_name=""                                                                        ## mention database name
 
 mysql_root_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`  ## randomly generated database 
 
