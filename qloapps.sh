@@ -14,11 +14,11 @@
 # throw errors and destroy configuration for first user.                                                 #
 ##########################################################################################################
 
-domain_name=                                                                          ## mention the domain name
+domain_name = ""                                                                          ## mention the domain name
 
-database_host                                                                         ## mention database host.
+database_host = ""                                                                         ## mention database host.
 
-database_name=                                                                        ## mention database name
+database_name = ""                                                                        ## mention database name
 
 mysql_root_password=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1`  ## randomly generated database 
 
@@ -59,17 +59,17 @@ apt-get update \
     && apt-get install -y language-pack-en-base \
     && LC_ALL=en_US.UTF-8 add-apt-repository ppa:ondrej/php \
     && apt-get update \
-    && apt-get -y install php5.6 php5.6-curl php5.6-intl php5.6-gd php5.6-dom php5.6-mcrypt php5.6-iconv php5.6-xsl php5.6-mbstring php5.6-ctype   php5.6-zip php5.6-pdo php5.6-xml php5.6-bz2 php5.6-calendar php5.6-exif php5.6-fileinfo php5.6-json php5.6-mysqli php5.6-mysql php5.6-posix php5.6-tokenizer php5.6-xmlwriter php5.6-xmlreader php5.6-phar php5.6-soap php5.6-mysql php5.6-fpm php5.6-bcmath libapache2-mod-php5.6 \
-    && sed -i -e"s/^memory_limit\s*=\s*128M/memory_limit = 512M/" /etc/php/5.6/apache2/php.ini \
-    && echo "date.timezone = Asia/Kolkata" >> /etc/php/5.6/apache2/php.ini \
-    && sed -i -e"s/^upload_max_filesize\s*=\s*2M/upload_max_filesize = 16M/" /etc/php/5.6/apache2/php.ini \
-    && sed -i -e"s/^max_execution_time\s*=\s*30/max_execution_time = 500/" /etc/php/5.6/apache2/php.ini
+    && apt-get -y install php7.2 php7.2-curl php7.2-intl php7.2-gd php7.2-dom php7.2-iconv php7.2-xsl php7.2-mbstring php7.2-ctype php7.2-zip php7.2-pdo php7.2-xml php7.2-bz2 php7.2-calendar php7.2-exif php7.2-fileinfo php7.2-json php7.2-mysqli php7.2-mysql php7.2-posix php7.2-tokenizer php7.2-xmlwriter php7.2-xmlreader php7.2-phar php7.2-soap php7.2-mysql php7.2-fpm php7.2-bcmath libapache2-mod-php7.2 \
+    && sed -i -e"s/^memory_limit\s*=\s*128M/memory_limit = 512M/" /etc/php/7.2/apache2/php.ini \
+    && echo "date.timezone = Asia/Kolkata" >> /etc/php/7.2/apache2/php.ini \
+    && sed -i -e"s/^upload_max_filesize\s*=\s*2M/upload_max_filesize = 16M/" /etc/php/7.2/apache2/php.ini \
+    && sed -i -e"s/^max_execution_time\s*=\s*30/max_execution_time = 500/" /etc/php/7.2/apache2/php.ini
 
-##install mysql-server=5.6
+##install mysql-server=5.7
 export DEBIAN_FRONTEND="noninteractive"
-echo "mysql-server-5.6 mysql-server/root_password password $mysql_root_password" | debconf-set-selections
-echo "mysql-server-5.6 mysql-server/root_password_again password $mysql_root_password" | debconf-set-selections
-apt-get -y install mysql-server-5.6
+echo "mysql-server-5.7 mysql-server/root_password password $mysql_root_password" | debconf-set-selections
+echo "mysql-server-5.7 mysql-server/root_password_again password $mysql_root_password" | debconf-set-selections
+apt-get -y install mysql-server-5.7
 sleep 4
 database_Connectivity
 sleep 2
