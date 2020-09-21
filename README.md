@@ -16,7 +16,7 @@ We are here using shell provisioner. The Vagrant Shell provisioner allows you to
 
 > Latest available version of Virtualbox and Vagrant server should be installed on the server. Run *vagrant -v* to check vagrant version.
 
-> Dowload a Vagrant box for Ubuntu 14.04 and add its path in the Vagrantfile. A Vagrantfile sample is added in this project. Mention path to the Vagrant box in *config.vm.box*. 
+> Dowload a Vagrant box for Ubuntu 18.04 and add its path in the Vagrantfile. A Vagrantfile sample is added in this project. Mention path to the Vagrant box in *config.vm.box*. 
 
 > Mention Vagrant username, password and IP address in their respective fields.
 
@@ -30,13 +30,13 @@ Now open qloapps.sh file and set the *domain name, database host and database na
 
 In our architecture, we are using:
 
-> Ubuntu 14.04
+> Ubuntu 18.04
 
 > Apache2
 
-> PHP-5.6
+> PHP-7.2
 
-> Mysql-5.6
+> Mysql-5.7
 
 > Database user: root
 
